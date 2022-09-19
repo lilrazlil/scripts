@@ -1,0 +1,12 @@
+[Secret Net LSP]
+ClientDescription=Министерство экономического развития Российской Федерации
+ClientID=20
+Demo=NO
+LicCount=3
+LicID=1EC26D
+Product=Secret Net LSP
+ProductDescription=Право на использование модуля защиты от НСД Средства защиты информации Secret Net LSP. ПО-renewal
+SuppType=NO
+Type=Enterprise 
+UpgrExp=2021-11-16
+Sign=Zgb

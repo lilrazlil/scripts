@@ -1,0 +1,36 @@
+Name:                                       Kaspersky Endpoint Security 11.1.0 for Linux
+Version:                                    11.1.0.3013
+Policy:                                     Not applied
+
+Key status:                                 Expired
+License expiration date:                    2021-11-27
+
+Storage state:                              No objects in Storage
+Storage space usage:                        Storage size is unlimited
+
+Last run date of the Scan_My_Computer task: Never run
+
+Last release date of databases:             2021-11-26 17:58:00
+Anti-virus databases loaded:                Yes
+
+Kaspersky Security Network state:           Off
+
+File Threat Protection:                     Available and running
+
+System Integrity Monitoring:                Unavailable due to license issue
+
+Firewall Management:                        Unavailable due to certified application
+
+Anti-Cryptor:                               Available and stopped
+
+Web Threat Protection:                      Available and running
+
+Device Control:                             Unavailable due to certified application
+
+Removable Drives Scan:                      Available and stopped
+
+Network Threat Protection:                  Unavailable due to certified application
+
+Behavior Detection:                         Unavailable due to license issue
+
+Application update state:                   No application updates available
