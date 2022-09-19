@@ -8,7 +8,7 @@ data_now = strftime("%Y-%m-%d", gmtime())
 def data_license_kesl():
     word_kesl_en="License expiration date:"
     word_kesl_ru="Дата окончания срока действия лицензии:"
-    f = subprocess.check_output(['cat','test_ru.txt']).decode("utf-8").split(sep="\n")
+    f = subprocess.check_output(['kesl-control','--app-info']).decode("utf-8").split(sep="\n")
     for line in f:
         if str(line).find(word_kesl_en ) != -1:
             return re.findall('\d+', line)
@@ -18,7 +18,7 @@ def data_license_kesl():
 
 def data_license_sn():
     word_sn="UpgrExp="
-    f = subprocess.check_output(['cat','test_sn.txt']).decode("utf-8").split(sep="\n")
+    f = subprocess.check_output(['cat','/opt/secretnet/etc/serial']).decode("utf-8").split(sep="\n")
     for line in f:
         if str(line).find(word_sn) != -1:
             return re.findall('\d+', line)
