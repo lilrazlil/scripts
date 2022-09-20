@@ -9,12 +9,9 @@ import time
 arg_name=sys.argv[1]
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 
-
-
 R5m="select * from system.service_exec_log where message_receive_timestamp >= (now() - interval '60 day') and message_receive_timestamp <= (now() - interval '2 hour') and status = 'processing' and exec_result_file_path is null limit 10;" #Request every 5 minutes
 R1h="select * from system.service_exec_log where message_receive_timestamp >= (now() - interval '60 day') and message_receive_timestamp <= (now() - interval '24 hour') and status = 'processing'  limit 10;" #Request every 1 hour
 R1d="select description from system.cron_job_process_log where status = 'error' and stop::date = now()::date limit 10;" #Request every 1 day
-
 
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
@@ -49,22 +46,23 @@ def check_requests():
 
 
                 if arg_name == "R5m":
-                    db.execute("select * from films")
+                    db.execute(R5m)
                     count_rows = len(db.fetchall())
                     if count_rows != 0:
                         send_telegram("Alarm!\n" + str(count_rows) + " rows from (now() - interval '2 hour')")
                         while count_rows != 0:
                             time.sleep(10)
-                            db.execute("select * from films")
+                            db.execute(R5m)
                             count_rows = len(db.fetchall())
                         send_telegram("Good!\n" + str(count_rows) + " rows from (now() - interval '2 hour')")
+
 
 
                 if arg_name == "R1h":
                     db.execute(R1h)
                     count_rows = len(db.fetchall())
                     if count_rows != 0:
-                        send_telegram("alarm " + str(count_rows) + " rows from (now() - interval '24 hour')")
+                        send_telegram("Alarm!\n" + str(count_rows) + " rows from (now() - interval '24 hour')")
                         while count_rows != 0:
                             time.sleep(10)
                             db.execute(R1h)
@@ -76,7 +74,7 @@ def check_requests():
                     db.execute(R1d)
                     count_rows = len(db.fetchall())
                     if count_rows != 0:
-                        send_telegram("alarm " + str(count_rows) + " rows from system.cron_job_process_log")
+                        send_telegram("Alarm!\n" + str(count_rows) + " rows from system.cron_job_process_log")
                         while count_rows != 0:
                             time.sleep(10)
                             db.execute(R1d)
