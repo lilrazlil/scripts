@@ -8,8 +8,6 @@ import sys
 import time
 import datetime
 
-def now ():
-    return datetime.datetime.now()
 
 arg_name=sys.argv[1]
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -29,7 +27,7 @@ if os.path.exists(dotenv_path):
     TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
     CHANNEL_ID=os.environ.get("CHANNEL_ID")
 else:
-    print(".env don't exist")
+    write_log(".env don't exist")
     sys.exit(2)
 
 
@@ -66,8 +64,9 @@ def close_status_problem(var):
         file.write(content)
 
 def write_log(text):
-    with open(pwd + "/log", "a") as file:
-        file.write(text + "\n")
+    now = datetime.datetime.now()
+    with open(pwd + "/sql.log", "a") as file:
+        file.write(str(now) + text + "\n")
 
 def send_telegram(text: str):
     token = TELEGRAM_TOKEN
@@ -93,28 +92,28 @@ def check_requests():
 
                 if arg_name == "R5m":
                     db.execute(R5m)
-                    write_log(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
+                    write_log(" ------------\n\t\t\t   Выполнил запрос")
                     if R5M == "0":
-                        write_log(str(now()) + " Статус проблемы закрыт")
+                        write_log(" Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
-                        write_log(str(now()) + " Посчитал строки")
+                        write_log(" Посчитал строки")
                         if count_rows != 0:
-                            write_log(str(now()) + " Строки не равны нулю")
+                            write_log(" Строки не равны нулю")
                             send_telegram("Alarm!\nОчередь на загрузку первичных данных имеет: " + str(count_rows) + " строки")
-                            write_log(str(now()) + " Отправил сообщение")
+                            write_log(" Отправил сообщение")
                             open_status_problem("R5M")
-                            write_log(str(now()) + " Статус проблемы открыл")
+                            write_log(" Статус проблемы открыл")
                             while count_rows != 0:
                                 time.sleep(60)
-                                write_log(str(now()) + " Проверяю решилось ли")
+                                write_log(" Проверяю решилось ли")
                                 db.execute(R5m)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R5M")
-                            write_log(str(now()) + " Закрыл статус проблемы")
+                            write_log(" Закрыл статус проблемы")
                             send_telegram("Good!\nОчередь на загрузку первичных данных имеет: " + str(count_rows) + " строк")
-                            write_log(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                            write_log(" Отправил сообщение что всё хорошо \n\t\t\t   ------------")
                         else:
-                            write_log(" \t\t\t   ------------")
+                            write_log(" ------------")
                     else:
                         sys.exit(2)
 
@@ -122,55 +121,55 @@ def check_requests():
 
                 if arg_name == "R1h":
                     db.execute(R1h)
-                    print(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
+                    write_log(" ------------\n\t\t\t   Выполнил запрос")
                     if R1H == "0":
-                        print(str(now()) + " Статус проблемы закрыт")
+                        write_log(" Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
-                        print(str(now()) + " Посчитал строки")
+                        write_log(" Посчитал строки")
                         if count_rows != 0:
-                            print(str(now()) + " Строки не равны нулю")
+                            write_log(" Строки не равны нулю")
                             send_telegram("Alarm!\nОтветы в СМЭВ о загрузке первичных данных имеет: " + str(count_rows) + " строки")
-                            print(str(now()) + " Отправил сообщение")
+                            write_log(" Отправил сообщение")
                             open_status_problem("R1H")
-                            print(str(now()) + " Статус проблемы открыл")
+                            write_log(" Статус проблемы открыл")
                             while count_rows != 0:
                                 time.sleep(60)
-                                print(str(now()) + " Проверяю решилось ли")
+                                write_log(" Проверяю решилось ли")
                                 db.execute(R1h)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R1H")
-                            print(str(now()) + " Закрыл статус проблемы")
+                            write_log(" Закрыл статус проблемы")
                             send_telegram("Good!\nОтветы в СМЭВ о загрузке первичных данных имеет: " + str(count_rows) + " строки")
-                            print(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                            write_log(" Отправил сообщение что всё хорошо \n\t\t\t   ------------")
                         else:
-                            print(" \t\t\t   ------------")
+                            write_log(" ------------")
                     else:
                         sys.exit(2)
 
                 if arg_name == "R1d":
                     db.execute(R1d)
-                    print(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
+                    write_log(" ------------\n\t\t\t   Выполнил запрос")
                     if R1D == "0":
-                        print(str(now()) + " Статус проблемы закрыт")
+                        write_log(" Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
-                        print(str(now()) + " Посчитал строки")
+                        write_log(" Посчитал строки")
                         if count_rows != 0:
-                            print(str(now()) + " Строки не равны нулю")
+                            write_log(" Строки не равны нулю")
                             send_telegram("Alarm!\nПроблемы с расчетом витрин отчетов данных имеют: " + str(count_rows) + " строки")
-                            print(str(now()) + " Отправил сообщение")
+                            write_log(" Отправил сообщение")
                             open_status_problem("R1D")
-                            print(str(now()) + " Статус проблемы открыл")
+                            write_log(" Статус проблемы открыл")
                             while count_rows != 0:
                                 time.sleep(60)
-                                print(str(now()) + " Проверяю решилось ли")
+                                write_log(" Проверяю решилось ли")
                                 db.execute(R1d)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R1D")
-                            print(str(now()) + " Закрыл статус проблемы")
+                            write_log(" Закрыл статус проблемы")
                             send_telegram("Good!\nПроблемы с расчетом витрин отчетов данных имеют: " + str(count_rows) + " строки")
-                            print(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                            write_log(" Отправил сообщение что всё хорошо \n\t\t\t   ------------")
                         else:
-                            print(" \t\t\t   ------------")
+                            write_log(" ------------")
                     else:
                         sys.exit(2)
 
