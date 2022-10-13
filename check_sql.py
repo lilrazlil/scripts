@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import psycopg2
 from dotenv import load_dotenv
@@ -5,14 +6,18 @@ from contextlib import closing
 import requests
 import sys
 import time
+import datetime
+
+def now ():
+    return datetime.datetime.now()
 
 arg_name=sys.argv[1]
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 dotstatus_path = os.path.join(os.path.dirname(__file__), '.status')
-R5m="select * from system.service_exec_log where message_receive_timestamp >= (now() - interval '60 day') and message_receive_timestamp <= (now() - interval '2 hour') and status = 'processing' and exec_result_file_path is null limit 10;" #Request every 5 minutes
+R5m="select * from system.service_exec_log where message_receive_timestamp >= (now() - interval '60 day') and message_receive_timestamp <= (now() - interval '2 hour') and status = 'processing' and exec_result_file_path is null limit 10;" #Request every 5 minutes select * from films;
 R1h="select * from system.service_exec_log where message_receive_timestamp >= (now() - interval '60 day') and message_receive_timestamp <= (now() - interval '24 hour') and status = 'processing'  limit 10;" #Request every 1 hour
 R1d="select description from system.cron_job_process_log where status = 'error' and stop::date = now()::date limit 10;" #Request every 1 day
-
+pwd = os.path.dirname(os.path.realpath(__file__))
 
 
 if os.path.exists(dotenv_path):
@@ -34,8 +39,8 @@ if os.path.exists(dotstatus_path):
     R1H=os.environ.get("R1H")
     R1D=os.environ.get("R1D")
 else:
-    os.mknod('.status')
-    with open(".status", 'w') as file:
+    os.mknod(pwd + '/.status')
+    with open(pwd + "/.status", 'w') as file:
         file.write("R5M=0\nR1H=0\nR1D=0")
     load_dotenv(dotstatus_path)    
     R5M=os.environ.get("R5M")
@@ -43,24 +48,26 @@ else:
     R1D=os.environ.get("R1D")
 
 def open_status_problem(var):
-    with open(".status", 'rt') as file:
+    with open(pwd + "/.status", 'rt') as file:
         content = file.read()
         content = content.replace(var+'=0', var + '=1')
 
-    with open(".status", 'wt') as file:
+    with open(pwd + "/.status", 'wt') as file:
     
         file.write(content)
 
 def close_status_problem(var):
-    with open(".status", 'rt') as file:
+    with open(pwd + "/.status", 'rt') as file:
         content = file.read()
         content = content.replace(var+'=1', var + '=0')
 
-    with open(".status", 'wt') as file:
+    with open(pwd + "/.status", 'wt') as file:
     
         file.write(content)
 
-
+def write_log(text):
+    with open(pwd + "/log", "a") as file:
+        file.write(text + "\n")
 
 def send_telegram(text: str):
     token = TELEGRAM_TOKEN
@@ -86,17 +93,28 @@ def check_requests():
 
                 if arg_name == "R5m":
                     db.execute(R5m)
+                    write_log(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
                     if R5M == "0":
+                        write_log(str(now()) + " Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
+                        write_log(str(now()) + " Посчитал строки")
                         if count_rows != 0:
+                            write_log(str(now()) + " Строки не равны нулю")
                             send_telegram("Alarm!\nОчередь на загрузку первичных данных имеет: " + str(count_rows) + " строки")
+                            write_log(str(now()) + " Отправил сообщение")
                             open_status_problem("R5M")
+                            write_log(str(now()) + " Статус проблемы открыл")
                             while count_rows != 0:
-                                time.sleep(10)
+                                time.sleep(60)
+                                write_log(str(now()) + " Проверяю решилось ли")
                                 db.execute(R5m)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R5M")
+                            write_log(str(now()) + " Закрыл статус проблемы")
                             send_telegram("Good!\nОчередь на загрузку первичных данных имеет: " + str(count_rows) + " строк")
+                            write_log(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                        else:
+                            write_log(" \t\t\t   ------------")
                     else:
                         sys.exit(2)
 
@@ -104,33 +122,55 @@ def check_requests():
 
                 if arg_name == "R1h":
                     db.execute(R1h)
+                    print(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
                     if R1H == "0":
+                        print(str(now()) + " Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
+                        print(str(now()) + " Посчитал строки")
                         if count_rows != 0:
+                            print(str(now()) + " Строки не равны нулю")
                             send_telegram("Alarm!\nОтветы в СМЭВ о загрузке первичных данных имеет: " + str(count_rows) + " строки")
+                            print(str(now()) + " Отправил сообщение")
                             open_status_problem("R1H")
+                            print(str(now()) + " Статус проблемы открыл")
                             while count_rows != 0:
-                                time.sleep(10)
+                                time.sleep(60)
+                                print(str(now()) + " Проверяю решилось ли")
                                 db.execute(R1h)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R1H")
+                            print(str(now()) + " Закрыл статус проблемы")
                             send_telegram("Good!\nОтветы в СМЭВ о загрузке первичных данных имеет: " + str(count_rows) + " строки")
+                            print(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                        else:
+                            print(" \t\t\t   ------------")
                     else:
                         sys.exit(2)
 
                 if arg_name == "R1d":
                     db.execute(R1d)
+                    print(str(now()) + " ------------\n\t\t\t   Выполнил запрос")
                     if R1D == "0":
+                        print(str(now()) + " Статус проблемы закрыт")
                         count_rows = len(db.fetchall())
+                        print(str(now()) + " Посчитал строки")
                         if count_rows != 0:
+                            print(str(now()) + " Строки не равны нулю")
                             send_telegram("Alarm!\nПроблемы с расчетом витрин отчетов данных имеют: " + str(count_rows) + " строки")
+                            print(str(now()) + " Отправил сообщение")
                             open_status_problem("R1D")
+                            print(str(now()) + " Статус проблемы открыл")
                             while count_rows != 0:
-                                time.sleep(10)
+                                time.sleep(60)
+                                print(str(now()) + " Проверяю решилось ли")
                                 db.execute(R1d)
                                 count_rows = len(db.fetchall())
                             close_status_problem("R1D")
+                            print(str(now()) + " Закрыл статус проблемы")
                             send_telegram("Good!\nПроблемы с расчетом витрин отчетов данных имеют: " + str(count_rows) + " строки")
+                            print(str(now()) + " Отправил сообщение что всё хорошо \n\t\t\t   ------------")
+                        else:
+                            print(" \t\t\t   ------------")
                     else:
                         sys.exit(2)
 
