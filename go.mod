@@ -1,3 +1,3 @@
-module apiserver
+module serverstatus
 
 go 1.20
