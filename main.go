@@ -1,38 +1,57 @@
 package main
 
 import (
-   "fmt"
-   "net/http"
-   "io/ioutil"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/exec"
+	"strconv"
 )
 
 func main() {
-   http.HandleFunc("/serverstatus", post)
-   fmt.Println("Listening on port 8080")
-   http.ListenAndServe(":8080", nil)
-}
+	// Check if the user provided the port number
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go [port]")
+		return
+	}
 
-func post(w http.ResponseWriter, r *http.Request) {
-   defer r.Body.Close()
-   body, err := ioutil.ReadAll(r.Body)
-   if err != nil {
-      http.Error(w, err.Error(), http.StatusInternalServerError)
-      return
-   }
-   if r.Method == http.MethodGet {
-		// Обработка GET запроса
-		if string(body) == "test1" {
-			fmt.Fprintf(w, "GET")
+	port, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		fmt.Println("Invalid port number")
+		return
+	}
+
+	http.HandleFunc("/serverstatus", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			if r.Method == "GET" {
+            out, _ := exec.Command("ls").Output()
+				fmt.Fprint(w, out)
+			} else {
+				http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			}
+			return
 		}
 
-   } else if r.Method == http.MethodPost {
-		// Обработка POST запроса
-		if string(body) == "test2" {
-			fmt.Fprintf(w, "POST")
+		// Read the request body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+			return
 		}
-   }
-   // do something here with body
-   fmt.Println(string(body))
-   // ... run script here ...
-   fmt.Fprintf(w, "Success")
+		defer r.Body.Close()
+
+		// Log the request body to the console
+		fmt.Println(string(body))
+
+		// Execute the script
+		out, err := exec.Command(string(body)).Output()
+		if err != nil {
+			http.Error(w, "Failed to run script", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprint(w, string(out))
+	})
+
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
