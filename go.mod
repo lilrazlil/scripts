@@ -1,5 +1,5 @@
-module create-shard-deploy-config
+module test
 
 go 1.20
 
-require github.com/emirpasic/gods v1.18.1
+require gopkg.in/yaml.v3 v3.0.1

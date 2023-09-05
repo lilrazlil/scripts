@@ -5,24 +5,23 @@ import (
 	"log"
 )
 
-type Config struct {
-	Env      string
-	FilePath string
-	Target   string
+type Flag struct {
+	ShardValuesFile string
+	ManifestsFile   string
+	OverrideFile    string
+	OutFile         string
 }
 
-func (c *Config) Init() {
-	flag.StringVar(&c.Env, "env", "", "an string")
-	flag.StringVar(&c.FilePath, "file", "", "an string")
-	flag.StringVar(&c.Target, "target", "", "an string")
+func (Flag *Flag) Init() {
+	flag.StringVar(&Flag.ShardValuesFile, "shard-values", "", "")
+	flag.StringVar(&Flag.ManifestsFile, "manifest", "", "")
+	flag.StringVar(&Flag.OverrideFile, "override", "", "")
+	flag.StringVar(&Flag.OutFile, "dir", "", "")
 	flag.Parse()
-	if c.FilePath == "" {
-		log.Fatal("Не указано имя файла")
+	if Flag.ManifestsFile == "" {
+		log.Fatal("Не указан файл с манифестами")
 	}
-	if c.Env == "" {
-		log.Fatal("Не указано окружение")
-	}
-	if c.Target != "firestate" && c.Target != "backup" {
-		log.Fatal("Не указана цель", c.Target)
+	if Flag.ShardValuesFile == "" {
+		log.Fatal("Не указан файл шард")
 	}
 }

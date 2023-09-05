@@ -1,0 +1,14 @@
+deployment:
+  firestate1:
+    resources:
+      limits:
+        cpu: "0.6"
+        memory: 8Mi
+  firestate0:
+    resources:
+      limits:
+        cpu: "16"
+        memory: 8Mi
+      requests:
+        cpu: "15"
+        memory: 5Mi
